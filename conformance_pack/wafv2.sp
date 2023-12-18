@@ -37,6 +37,15 @@ control "wafv2_web_acl_rule_attached" {
   tags = local.conformance_pack_waf_common_tags
 }
 
+control "wafv2_web_acl_resource_attached" {
+  title       = "A WAFV2 web ACL should have at least one resource attached"
+  description = "This control checks whether a WAFV2 web access control list (web ACL) contains at least one resource attached. The control fails if a web ACL does not contain any resource attached."
+  query       = query.wafv2_web_acl_resource_attached
+
+  tags = local.conformance_pack_waf_common_tags
+}
+
+
 query "wafv2_web_acl_logging_enabled" {
   sql = <<-EOQ
     select
@@ -85,5 +94,27 @@ query "wafv2_web_acl_rule_attached" {
     from
       aws_wafv2_web_acl as a
       left join rule_group_count as c on c.arn = a.arn;
+  EOQ
+}
+
+
+query "wafv2_web_acl_resource_attached" {
+  sql = <<-EOQ
+
+  select
+  arn as resource,
+  case
+    when jsonb_array_length(associated_resources) > 0 then 'ok'
+    else 'alarm'
+  end as status,
+  case
+    when jsonb_array_length(associated_resources) > 0 then title || ' has associated resources.'
+    else title || ' has no instances registered.'
+  end as reason,
+  region,
+  account_id
+from
+  aws_wafv2_web_acl;
+
   EOQ
 }
