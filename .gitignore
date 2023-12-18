@@ -4,10 +4,11 @@
 *.dll
 *.so
 *.dylib
-
+.DS_Store
 # Swap files
 *.swp
 
 # Steampipe variable files
 *.spvars
 *.auto.spvars
+.gitignore
